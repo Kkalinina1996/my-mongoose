@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 
 import Author from './models/Author.js';
 import Book from './models/Book.js';
+import Category from './models/Category.js';
+import Product from './models/Product.js';
 
 dotenv.config();
 
@@ -50,6 +52,33 @@ app.get('/books', async (req, res) => {
   try {
     const books = await Book.find().populate('author');
     res.json(books);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/test-products', async (req, res) => {
+  try {
+    const category = await Category.create({
+      name: 'Electronics'
+    });
+
+    const product = await Product.create({
+      name: 'iPhone',
+      price: 1000,
+      category: category._id
+    });
+
+    res.json({ category, product });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/products', async (req, res) => {
+  try {
+    const products = await Product.find().populate('category');
+    res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

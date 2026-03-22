@@ -8,6 +8,8 @@ import Category from './models/Category.js';
 import Product from './models/Product.js';
 import Student from './models/Student.js';
 import Course from './models/Course.js';
+import Actor from './models/Actor.js';
+import Movie from './models/Movie.js';
 
 dotenv.config();
 
@@ -122,6 +124,41 @@ app.get('/courses', async (req, res) => {
   res.json(courses);
 });
 
+app.get('/test-movies', async (req, res) => {
+  try {
+    const actor = await Actor.create({
+      name: 'Leonardo DiCaprio',
+      birthdate: new Date('1974-11-11')
+    });
+
+    const movie = await Movie.create({
+      title: 'Inception',
+      releaseYear: 2010
+    });
+
+    // связываем
+    actor.movies.push(movie._id);
+    await actor.save();
+
+    movie.actors.push(actor._id);
+    await movie.save();
+
+    res.json({ actor, movie });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/actors', async (req, res) => {
+  const actors = await Actor.find().populate('movies');
+  res.json(actors);
+});
+
+app.get('/movies', async (req, res) => {
+  const movies = await Movie.find().populate('actors');
+  res.json(movies);
+});
 
 app.listen(PORT, () => {
   console.log(` Server running on port ${PORT}`);

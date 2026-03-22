@@ -6,6 +6,8 @@ import Author from './models/Author.js';
 import Book from './models/Book.js';
 import Category from './models/Category.js';
 import Product from './models/Product.js';
+import Student from './models/Student.js';
+import Course from './models/Course.js';
 
 dotenv.config();
 
@@ -82,6 +84,42 @@ app.get('/products', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+app.get('/test-students', async (req, res) => {
+  try {
+    const student = await Student.create({
+      name: 'John Doe',
+      email: 'john@example.com'
+    });
+
+    const course = await Course.create({
+      title: 'JavaScript',
+      description: 'Learn JS'
+    });
+
+    // связываем
+    student.courses.push(course._id);
+    await student.save();
+
+    course.students.push(student._id);
+    await course.save();
+
+    res.json({ student, course });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/students', async (req, res) => {
+  const students = await Student.find().populate('courses');
+  res.json(students);
+});
+
+app.get('/courses', async (req, res) => {
+  const courses = await Course.find().populate('students');
+  res.json(courses);
 });
 
 
